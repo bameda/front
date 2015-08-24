@@ -1,5 +1,5 @@
 (ns uxbox.shapes.path
-  (:require [uxbox.shapes.core :refer [Shape generate-transformation actions-menu fill-menu new-group]]
+  (:require [uxbox.shapes.core :refer [Shape generate-transformation actions-menu fill-menu]]
             [uxbox.pubsub :as pubsub]
             [uxbox.icons :as icons]
             [uxbox.geometry :as geo]
@@ -86,14 +86,10 @@
 (defn drawing-path [state [x y] symbol]
  (if-let [drawing-val (get-in state [:page :drawing])]
    (let [shape-uuid (random-uuid)
-         group-uuid (random-uuid)
          [rect-x rect-y rect-width rect-height] (geo/coords->rect x y (:x drawing-val) (:y drawing-val))
-         new-group-order (->> state :groups vals (sort-by :order) last :order inc)
-         shape-val (new-path-shape rect-x rect-y rect-width rect-height (-> symbol :svg second :d) 48 48)
-         group-val (new-group (str (:name symbol) " " new-group-order) new-group-order shape-uuid)]
+         shape-val (new-path-shape rect-x rect-y rect-width rect-height (-> symbol :svg second :d) 48 48)]
 
-     (do (pubsub/publish! [:insert-group [group-uuid group-val]])
-         (pubsub/publish! [:insert-shape [shape-uuid shape-val]])
+     (do (pubsub/publish! [:insert-shape [shape-uuid shape-val]])
          (-> state
               (assoc-in [:page :drawing] nil)
               (assoc-in [:page :selected] shape-uuid)

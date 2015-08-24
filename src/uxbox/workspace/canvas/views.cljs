@@ -84,29 +84,11 @@
 
         zoom (get-in @db [:workspace :zoom])
 
-        ;; Get a group of ids and retrieves the list of shapes
-        ids->shapes (fn [shape-ids]
-                      (->> shape-ids
-                           (map #(get page-shapes %))
-                           (filter #(not (nil? %)))
-                           ))
-
-        ;; Retrieve the <g> element grouped if applied
-        group-svg (fn [shapes]
-                    (if (= (count shapes) 1)
-                      (->> shapes first shapes/shape->svg)
-                      (apply vector :g
-                             (->> shapes
-                                  (map shapes/shape->svg)))))
-
         ;; Retrieve the list of shapes grouped if applies
-        shapes-svg (->> page-groups
-                        (vals)
-                        (sort-by :order)
-                        (filter :visible)
-                        (map #(update-in % [:shapes] ids->shapes))
-                        (map :shapes)
-                        (map group-svg))
+        shapes-svg (->> (get-in @db [:page :root])
+                        ;; TODO: Add :visible key to all shapes
+                        (map #(get-in @db [:shapes %]))
+                        (map shapes/shape->svg))
 
         on-event (fn [event-type]
                    (fn [e]

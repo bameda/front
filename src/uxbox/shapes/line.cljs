@@ -1,5 +1,5 @@
 (ns uxbox.shapes.line
-  (:require [uxbox.shapes.core :refer [Shape generate-transformation fill-menu actions-menu stroke-menu new-group]]
+  (:require [uxbox.shapes.core :refer [Shape generate-transformation fill-menu actions-menu stroke-menu]]
             [uxbox.pubsub :as pubsub]
             [uxbox.icons :as icons]
             [uxbox.geometry :as geo]
@@ -103,13 +103,9 @@
 (defn drawing-line [state [x y]]
   (if-let [drawing-val (get-in state [:page :drawing])]
     (let [shape-uuid (random-uuid)
-          group-uuid (random-uuid)
-          new-group-order (->> state :groups vals (sort-by :order) last :order inc)
-          shape-val (new-line (:x1 drawing-val) (:y1 drawing-val) x y)
-          group-val (new-group (str "Group " new-group-order) new-group-order shape-uuid)]
+          shape-val (new-line (:x1 drawing-val) (:y1 drawing-val) x y)]
 
-      (do (pubsub/publish! [:insert-group [group-uuid group-val]])
-          (pubsub/publish! [:insert-shape [shape-uuid shape-val]])
+      (do (pubsub/publish! [:insert-shape [shape-uuid shape-val]])
           (-> state
               (assoc-in [:page :drawing] nil)
               (assoc-in [:page :selected] shape-uuid)

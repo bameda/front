@@ -44,22 +44,11 @@
        ))))
 
 (pubsub/register-transition
- :insert-group
- (fn [state [group-uuid group-val]]
-   (assoc-in state [:groups group-uuid] group-val)))
-
-
-(pubsub/register-transition
  :insert-shape
  (fn [state [shape-uuid shape-val]]
-   (assoc-in state [:shapes shape-uuid] shape-val)))
-
-(pubsub/register-effect
- :insert-group
- (fn [state [group-uuid group-val]]
-   (let [project-uuid (get-in state [:project :uuid])
-         page-uuid (get-in state [:page :uuid])]
-     (storage/create-group project-uuid page-uuid group-uuid group-val))))
+   (-> state
+      (assoc-in [:shapes shape-uuid] shape-val)
+      (update-in [:page :root] #(conj % shape-uuid)))))
 
 (pubsub/register-effect
  :insert-shape

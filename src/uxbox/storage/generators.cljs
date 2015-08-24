@@ -23,6 +23,7 @@
       :delete-page (swap! pages-view (fn [current] (dissoc current (:page-uuid event-data))))
       :change-page-title (swap! pages-view (fn [current] (assoc-in current [(:page-uuid event-data) :title] (:new-title event-data))))
       :delete-project (swap! pages-view (fn [current] (into {} (filter #(not= (:project-uuid event-data) (:project-uuid (second %))) current))))
+      :create-shape (swap! pages-view (fn [current] (update-in current [(:page-uuid event-data) :root] #(conj % (:uuid event-data)))))
       "default")))
 
 (defn groups-data [event]
